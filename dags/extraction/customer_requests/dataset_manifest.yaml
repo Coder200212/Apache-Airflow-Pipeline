@@ -1,0 +1,63 @@
+version: 1
+metadata:
+dataset_name: customer_requests
+description: Customer requests from SharePoint; only load rows with status = "done".
+owner: data-eng@yourcompany.com
+tags: [sharepoint, csv, admin, support]
+
+
+source:
+type: csv
+path: /opt/airflow/data/sharepoint/customer_requests
+file_pattern: "*.csv"
+csv_options:
+delimiter: ","
+quotechar: '"'
+encoding: "utf-8"
+header: true
+skip_bom: true
+
+
+validation:
+required_columns: [request_id, created_at, status]
+unique_keys: [request_id]
+non_nullable: [request_id, created_at, status]
+dtype_expectations:
+request_id: [string]
+created_at: [datetime]
+last_updated: [datetime, null]
+customer_email: [string, null]
+category: [string, null]
+priority: [string, null]
+subject: [string, null]
+body: [string, null]
+status: [string]
+allowed_values:
+status: [done, pending, in_progress, rejected]
+row_filters:
+- column: status
+include_values: [done]
+case_insensitive: true
+
+
+transformations:
+trims: [customer_email, category, priority, subject, status]
+lowercase: [customer_email, status]
+coalesce_nulls:
+priority: "normal"
+row_hash:
+enabled: true
+columns: [request_id, created_at, customer_email, category, status, subject]
+
+
+load:
+target:
+schema: support
+table: customer_requests
+mode: upsert
+primary_key: [request_id]
+deduplicate_on: [request_id]
+audit_columns:
+add_ingested_at: true
+add_source_file: true
+fail_on_validation_error: true
