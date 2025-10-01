@@ -1,0 +1,9 @@
+# Project 2: Airflow + MinIO + Redis + Postgres environment via Docker Compose
+# No Python packages needed for this environment itself
+# This file exists to satisfy project deliverable
+
+# Optional: Airflow CLI utilities if you ever run Python scripts outside container
+apache-airflow==2.6.3
+psycopg2-binary==2.9.9
+pandas==2.1.0
+boto3==1.28.41
